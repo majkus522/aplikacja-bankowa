@@ -1,0 +1,27 @@
+#ifndef LOGIN_H
+#define LOGIN_H
+
+#include <QWidget>
+
+namespace Ui { class Login; }
+
+class Login : public QWidget {
+    Q_OBJECT
+
+public:
+    explicit Login(QWidget *parent = nullptr);
+    ~Login();
+
+signals:
+    void loginSuccessful(int userId, const QString &username);
+    void goToRegisterRequested();
+
+private slots:
+    void on_btnLogin_clicked();
+    void on_btnGoToRegister_clicked();
+
+private:
+    Ui::Login *ui;
+};
+
+#endif // LOGIN_H

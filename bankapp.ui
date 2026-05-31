@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BankApp</class>
+ <widget class="QMainWindow" name="BankApp">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>350</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>System Bankowy z Wieloma Kontami</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>2</number>
+      </property>
+      <widget class="QWidget" name="dashboardPage">
+       <layout class="QVBoxLayout" name="vbox2">
+        <item>
+         <widget class="QLabel" name="labelWelcome">
+          <property name="text">
+           <string>Witaj!</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelSelectAcc">
+          <property name="text">
+           <string>Wybierz konto bankowe:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboAccounts"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelBalance">
+          <property name="text">
+           <string>Stan konta: 0.00 PLN</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnDeposit">
+          <property name="text">
+           <string>Wpłata</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnWithdraw">
+          <property name="text">
+           <string>Wypłata</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnLogout">
+          <property name="text">
+           <string>Wyloguj</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
