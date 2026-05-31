@@ -3,13 +3,20 @@
 #include <QSqlQuery>
 #include <QHeaderView>
 #include <QMessageBox>
+#include "../headers/database.h"
 
-AdminWidget::AdminWidget(QWidget *parent) : QDialog(parent), ui(new Ui::AdminWidget) {
+AdminWidget::AdminWidget(int adminId, QWidget *parent) : QDialog(parent), ui(new Ui::AdminWidget), m_adminId(adminId) {
     ui->setupUi(this);
     
     usersModel = new QSqlQueryModel(this);
     ui->viewAllUsers->setModel(usersModel);
     ui->viewAllUsers->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    logModel = new QSqlQueryModel(this);
+    ui->viewLogs->setModel(logModel);
+    ui->viewLogs->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // domyślne
+    ui->viewLogs->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    ui->viewLogs->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 AdminWidget::~AdminWidget() {
@@ -32,6 +39,18 @@ void AdminWidget::refreshData() {
     
     if (query.exec()) {
         usersModel->setQuery(std::move(query));
+    }
+
+    QSqlQuery logQuery;
+    logQuery.prepare(
+        "SELECT l.created_at AS \"Data\", u.username AS \"Użytkownik\", "
+        "l.action_type AS \"Akcja\", l.description AS \"Opis zdarzenia\" "
+        "FROM activity_logs l "
+        "LEFT JOIN users u ON l.user_id = u.id "
+        "ORDER BY l.created_at DESC"
+    );
+    if (logQuery.exec()) {
+        logModel->setQuery(std::move(logQuery));
     }
 }
 
@@ -71,7 +90,8 @@ void AdminWidget::on_btnToggleAdmin_clicked() {
     query.bindValue(":uid", userId);
 
     if (query.exec()) {
-        QMessageBox::information(this, "Sukces", "Uprawnienia użytkownika zostały pomyślnie zmienione.");
+        QMessageBox::information(this, "Sukces", "Uprawnienia użytkownika zostały pomyślnie zmienione.");;
+        Database::logActivity(m_adminId, "ADMIN_ACTION", QString("Administrator zmienił status użytkownika o ID %1 na: %2").arg(userId).arg(newAdminStatus ? "ADMIN" : "UŻYTKOWNIK"));
         refreshData(); // Odświeżamy tabelę, aby pokazać nowe dane
     } else {
         QMessageBox::critical(this, "Błąd", "Nie udało się zaktualizować uprawnień w bazie danych.");
@@ -99,6 +119,7 @@ void AdminWidget::on_btnToggleBlock_clicked() {
 
     if (query.exec()) {
         QMessageBox::information(this, "Sukces", "Status blokady użytkownika został zmieniony.");
+        Database::logActivity(m_adminId, "ADMIN_ACTION", QString("Administrator zmienił status użytkownika o ID %1 na: %2").arg(userId).arg(newBlockStatus ? "ZABLOKOWANIE" : "ODBLOKOWANIE"));
         refreshData();
     } else {
         QMessageBox::critical(this, "Błąd", "Nie udało się zaktualizować statusu w bazie danych.");

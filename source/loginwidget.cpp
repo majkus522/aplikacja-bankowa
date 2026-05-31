@@ -2,6 +2,7 @@
 #include "ui_loginwidget.h"
 #include <QSqlQuery>
 #include <QMessageBox>
+#include "../headers/database.h"
 
 LoginWidget::LoginWidget(QWidget *parent) : QWidget(parent), ui(new Ui::LoginWidget) {
     ui->setupUi(this);
@@ -23,23 +24,25 @@ void LoginWidget::on_btnLogin_clicked() {
 
     if (query.exec() && query.next()) {
         bool isBlocked = query.value(2).toBool(); // <-- Pobranie flagi blokady
-
+        int userId = query.value(0).toInt();
         // SPRAWDZENIE BLOKADY
         if (isBlocked) {
+            Database::logActivity(userId, "LOGIN_BLOCKED", "Odmowa dostępu: konto jest zablokowane.");
             QMessageBox::critical(this, "Dostęp zabroniony", 
                                   "Twoje konto zostało zablokowane przez administratora. "
                                   "Skontaktuj się z infolinią banku.");
             return; // Przerywamy funkcję, użytkownik nie zostanie zalogowany
         }
-
-        int userId = query.value(0).toInt();
         bool isAdmin = query.value(1).toBool();
         
         ui->editUser->clear();
         ui->editPass->clear();
+
+        Database::logActivity(userId, "LOGIN", QString("Użytkownik zalogował się do systemu (Admin: %1)").arg(isAdmin ? "TAK" : "NIE"));
         
         emit loginSuccessful(userId, user, isAdmin);
     } else {
+        Database::logActivity(-1, "LOGIN_FAILED", QString("Nieudana próba logowania na login: '%1'").arg(user));
         QMessageBox::warning(this, "Błąd", "Błędne dane logowania");
     }
 }

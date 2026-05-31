@@ -1,6 +1,7 @@
 #include "../headers/database.h"
 #include <QSqlError>
 #include <QDebug>
+#include <QSqlQuery>
 
 bool Database::initDatabase(const QString& host, const QString& dbName, 
                                    const QString& user, const QString& password, 
@@ -41,4 +42,22 @@ void Database::closeDatabase() {
         }
         QSqlDatabase::removeDatabase(connectionName);
     }
+}
+
+bool Database::logActivity(int userId, const QString &actionType, const QString &description) {
+    QSqlQuery query;
+    query.prepare("INSERT INTO activity_logs (user_id, action_type, description) "
+                   "VALUES (:uid, :action, :desc)");
+    
+    // Jeśli userId == -1 (np. nieudane logowanie), do bazy wrzucamy NULL
+    if (userId > 0) {
+        query.bindValue(":uid", userId);
+    } else {
+        query.bindValue(":uid", QVariant(QVariant::Int)); 
+    }
+    
+    query.bindValue(":action", actionType);
+    query.bindValue(":desc", description);
+
+    return query.exec();
 }

@@ -3,6 +3,7 @@
 #include <QSqlQuery>
 #include <QSqlDatabase>
 #include <QMessageBox>
+#include "../headers/database.h"
 
 TransferDialog::TransferDialog(int senderAccountId, double maxBalance, QWidget *parent) 
     : QDialog(parent), ui(new Ui::TransferDialog), m_senderAccountId(senderAccountId), m_maxBalance(maxBalance) 
@@ -79,6 +80,7 @@ void TransferDialog::on_btnConfirm_clicked() {
     
     if (logQuery.exec() && db.commit()) {
         QMessageBox::information(this, "Sukces", "Przelew wysłany!");
+        Database::logActivity(m_senderAccountId, "DEPOSIT", QString("Wpłata kwoty %1 PLN na konto ID: %2").arg(amount).arg(targetAccountId));
         accept(); // Zamyka dialog z kodem sukcesu (QDialog::Accepted)
     } else {
         db.rollback();

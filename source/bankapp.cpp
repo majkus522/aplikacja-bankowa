@@ -6,6 +6,7 @@
 #include <QClipboard>
 #include <QApplication>
 #include <QStatusBar>
+#include "../headers/database.h"
 
 BankApp::BankApp(QWidget *parent) 
     : QMainWindow(parent), ui(new Ui::BankApp), loggedUserId(-1), currentAccountId(-1), currentBalance(0.0) 
@@ -103,6 +104,7 @@ void BankApp::updateBalanceDisplay() {
 }
 
 void BankApp::on_btnLogout_clicked() {
+    Database::logActivity(loggedUserId, "LOGOUT", "Użytkownik wylogował się z systemu.");
     loggedUserId = -1; currentAccountId = -1;
     ui->comboAccounts->clear();
     showLoginPage();
@@ -171,7 +173,7 @@ void BankApp::on_btnOpenAdminPanel_clicked() {
     // Bezpieczeństwo: na wypadek gdyby jakimś cudem zwykły użytkownik wywołał tę funkcję
     if (!isLoggedUserAdmin) return; 
 
-    AdminWidget adminDialog(this);
+    AdminWidget adminDialog(loggedUserId, this);
     adminDialog.refreshData();
     
     // Otwieramy panel admina jako okno modalne

@@ -16,6 +16,7 @@ public:
 
     // Statyczna metoda do zamykania połączenia
     static void closeDatabase();
+    static bool logActivity(int userId, const QString &actionType, const QString &description);
 };
 
 #endif // DATABASE_H
