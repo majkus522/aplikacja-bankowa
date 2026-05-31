@@ -2,8 +2,9 @@
 #define BANKAPP_H
 
 #include <QMainWindow>
-#include "login.h"
-#include "register.h"
+#include "loginwidget.h"    // Pamiętaj o dodaniu tych include'ów
+#include "registerwidget.h"
+#include "transferdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class BankApp; }
@@ -25,10 +26,9 @@ private slots:
     void showLoginPage();
 
     // Sloty obsługi konta (Dashboard)
-    void on_btnDeposit_clicked();
-    void on_btnWithdraw_clicked();
     void on_btnLogout_clicked();
     void on_comboAccounts_currentIndexChanged(int index);
+    void on_btnOpenTransferDialog_clicked();
 
 private:
     Ui::BankApp *ui;
@@ -37,8 +37,8 @@ private:
     int currentAccountId;
     double currentBalance;
 
-    Login *loginWidget;
-    Register *registerWidget;
+    LoginWidget *loginWidget;
+    RegisterWidget *registerWidget;
 
     void loadUserAccounts();
     void updateBalanceDisplay();

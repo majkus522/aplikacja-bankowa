@@ -4,12 +4,13 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
-BankApp::BankApp(QWidget *parent) : QMainWindow(parent), ui(new Ui::BankApp), loggedUserId(-1), currentAccountId(-1), currentBalance(0.0) 
+BankApp::BankApp(QWidget *parent) 
+    : QMainWindow(parent), ui(new Ui::BankApp), loggedUserId(-1), currentAccountId(-1), currentBalance(0.0) 
 {
     ui->setupUi(this);
 
-    loginWidget = new Login(this);
-    registerWidget = new Register(this);
+    loginWidget = new LoginWidget(this);
+    registerWidget = new RegisterWidget(this);
 
     // 2. Dodajemy je dynamicznie do QStackedWidget i zapamiętujemy ich indeksy/wskaźniki
     // Przekazujemy 'ui->stackedWidget' jako rodzica
@@ -17,15 +18,15 @@ BankApp::BankApp(QWidget *parent) : QMainWindow(parent), ui(new Ui::BankApp), lo
     ui->stackedWidget->addWidget(registerWidget); // Zostanie dodany na pozycję np. 2
 
     // 3. Łączymy sygnały (Signals) dokładnie tak samo jak wcześniej
-    connect(loginWidget, &Login::loginSuccessful, this, &BankApp::handleLoginSuccessful);
-    connect(loginWidget, &Login::goToRegisterRequested, this, [=](){
+    connect(loginWidget, &LoginWidget::loginSuccessful, this, &BankApp::handleLoginSuccessful);
+    connect(loginWidget, &LoginWidget::goToRegisterRequested, this, [=](){
         ui->stackedWidget->setCurrentWidget(registerWidget);
     });
     
-    connect(registerWidget, &Register::cancelRequested, this, [=](){
+    connect(registerWidget, &RegisterWidget::cancelRequested, this, [=](){
         ui->stackedWidget->setCurrentWidget(loginWidget);
     });
-    connect(registerWidget, &Register::registrationSuccessful, this, [=](){
+    connect(registerWidget, &RegisterWidget::registrationSuccessful, this, [=](){
         ui->stackedWidget->setCurrentWidget(loginWidget);
     });
 
@@ -55,11 +56,11 @@ void BankApp::handleLoginSuccessful(int userId, const QString &username) {
 }
 
 void BankApp::showRegisterPage() {
-    ui->stackedWidget->setCurrentWidget(ui->registerPage);
+    ui->stackedWidget->setCurrentWidget(registerWidget);
 }
 
 void BankApp::showLoginPage() {
-    ui->stackedWidget->setCurrentWidget(ui->loginPage);
+    ui->stackedWidget->setCurrentWidget(loginWidget);
 }
 
 // === LOGIKA PULPITU (DASHBOARD) ===
@@ -96,32 +97,25 @@ void BankApp::updateBalanceDisplay() {
     ui->labelBalance->setText(QString("Stan konta: <b style='color:green;'>%1 PLN</b>").arg(currentBalance, 0, 'f', 2));
 }
 
-void BankApp::on_btnDeposit_clicked() {
-    if (currentAccountId == -1) return;
-    bool ok;
-    double amount = QInputDialog::getDouble(this, "Wpłata", "Kwota:", 0, 0, 100000, 2, &ok);
-    if (ok && amount > 0) {
-        QSqlQuery q;
-        q.prepare("UPDATE accounts SET balance = balance + :a WHERE id = :aid");
-        q.bindValue(":a", amount); q.bindValue(":aid", currentAccountId);
-        if (q.exec()) { currentBalance += amount; updateBalanceDisplay(); }
-    }
-}
-
-void BankApp::on_btnWithdraw_clicked() {
-    if (currentAccountId == -1) return;
-    bool ok;
-    double amount = QInputDialog::getDouble(this, "Wypłata", "Kwota:", 0, 0, currentBalance, 2, &ok);
-    if (ok && amount > 0 && amount <= currentBalance) {
-        QSqlQuery q;
-        q.prepare("UPDATE accounts SET balance = balance - :a WHERE id = :aid");
-        q.bindValue(":a", amount); q.bindValue(":aid", currentAccountId);
-        if (q.exec()) { currentBalance -= amount; updateBalanceDisplay(); }
-    }
-}
-
 void BankApp::on_btnLogout_clicked() {
     loggedUserId = -1; currentAccountId = -1;
     ui->comboAccounts->clear();
     showLoginPage();
+}
+
+void BankApp::on_btnOpenTransferDialog_clicked() {
+    if (currentAccountId == -1) {
+        QMessageBox::warning(this, "Błąd", "Wybierz konto przed wykonaniem przelewu.");
+        return;
+    }
+
+    // Tworzymy okno dialogowe, przekazując ID konta i aktualne saldo
+    TransferDialog dialog(currentAccountId, currentBalance, this);
+    
+    // Uruchamiamy okno w trybie modalnym
+    if (dialog.exec() == QDialog::Accepted) {
+        // Jeśli przelew się udał (funkcja accept() w dialogu), 
+        // odświeżamy saldo, wymuszając przeładowanie danych z bazy
+        on_comboAccounts_currentIndexChanged(ui->comboAccounts->currentIndex());
+    }
 }

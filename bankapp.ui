@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="dashboardPage">
        <layout class="QVBoxLayout" name="vbox2">
@@ -47,16 +47,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btnDeposit">
+         <widget class="QPushButton" name="btnOpenTransferDialog">
           <property name="text">
-           <string>Wpłata</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnWithdraw">
-          <property name="text">
-           <string>Wypłata</string>
+           <string>Przelew</string>
           </property>
          </widget>
         </item>
