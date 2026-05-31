@@ -1,4 +1,4 @@
-#include "loginwidget.h"
+#include "../headers/loginwidget.h"
 #include "ui_loginwidget.h"
 #include <QSqlQuery>
 #include <QMessageBox>

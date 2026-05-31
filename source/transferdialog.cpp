@@ -1,4 +1,4 @@
-#include "transferdialog.h"
+#include "../headers/transferdialog.h"
 #include "ui_transferdialog.h"
 #include <QSqlQuery>
 #include <QSqlDatabase>

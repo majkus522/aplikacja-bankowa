@@ -1,4 +1,4 @@
-#include "bankapp.h"
+#include "../headers/bankapp.h"
 #include "ui_bankapp.h"
 #include <QSqlQuery>
 #include <QInputDialog>

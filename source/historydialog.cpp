@@ -1,4 +1,4 @@
-#include "historydialog.h"
+#include "../headers/historydialog.h"
 #include "ui_historydialog.h"
 #include <QSqlQuery>
 #include <QSqlError>

@@ -1,4 +1,4 @@
-#include "adminwidget.h"
+#include "../headers/adminwidget.h"
 #include "ui_adminwidget.h"
 #include <QSqlQuery>
 #include <QHeaderView>

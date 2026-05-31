@@ -1,4 +1,4 @@
-#include "registerwidget.h"
+#include "../headers/registerwidget.h"
 #include "ui_registerwidget.h"
 #include <QSqlQuery>
 #include <QSqlDatabase>
