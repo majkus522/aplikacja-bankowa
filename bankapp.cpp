@@ -119,3 +119,14 @@ void BankApp::on_btnOpenTransferDialog_clicked() {
         on_comboAccounts_currentIndexChanged(ui->comboAccounts->currentIndex());
     }
 }
+
+void BankApp::on_btnOpenHistoryDialog_clicked() {
+    if (currentAccountId == -1) {
+        QMessageBox::warning(this, "Błąd", "Wybierz konto, aby zobaczyć jego historię.");
+        return;
+    }
+
+    // Tworzymy i uruchamiamy modalne okno historii
+    HistoryDialog dialog(currentAccountId, this);
+    dialog.exec(); 
+}

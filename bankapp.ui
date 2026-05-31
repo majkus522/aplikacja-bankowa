@@ -54,6 +54,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="btnOpenHistoryDialog">
+          <property name="text">
+           <string>Historia</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="btnLogout">
           <property name="text">
            <string>Wyloguj</string>

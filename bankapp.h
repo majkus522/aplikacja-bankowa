@@ -5,6 +5,7 @@
 #include "loginwidget.h"    // Pamiętaj o dodaniu tych include'ów
 #include "registerwidget.h"
 #include "transferdialog.h"
+#include "historydialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class BankApp; }
@@ -29,6 +30,7 @@ private slots:
     void on_btnLogout_clicked();
     void on_comboAccounts_currentIndexChanged(int index);
     void on_btnOpenTransferDialog_clicked();
+    void on_btnOpenHistoryDialog_clicked();
 
 private:
     Ui::BankApp *ui;
