@@ -13,7 +13,7 @@ public:
     ~LoginWidget();
 
 signals:
-    void loginSuccessful(int userId, const QString &username);
+    void loginSuccessful(int userId, const QString &username, bool isAdmin);
     void goToRegisterRequested();
 
 private slots:

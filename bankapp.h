@@ -6,6 +6,7 @@
 #include "registerwidget.h"
 #include "transferdialog.h"
 #include "historydialog.h"
+#include "adminwidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class BankApp; }
@@ -20,7 +21,7 @@ public:
 
 private slots:
     // Slot obsłużony z sygnału LoginWidget
-    void handleLoginSuccessful(int userId, const QString &username);
+    void handleLoginSuccessful(int userId, const QString &username, bool isAdmin);
     
     // Sloty nawigacyjne
     void showRegisterPage();
@@ -32,6 +33,7 @@ private slots:
     void on_btnOpenTransferDialog_clicked();
     void on_btnOpenHistoryDialog_clicked();
     void on_btnCopyAccountNumber_clicked();
+    void on_btnOpenAdminPanel_clicked();
 
 private:
     Ui::BankApp *ui;
@@ -39,9 +41,10 @@ private:
     QString loggedUsername;
     int currentAccountId;
     double currentBalance;
+    bool isLoggedUserAdmin;
 
-    LoginWidget *loginWidget;
-    RegisterWidget *registerWidget;
+    class LoginWidget *loginWidget;
+    class RegisterWidget *registerWidget;
 
     void loadUserAccounts();
     void updateBalanceDisplay();

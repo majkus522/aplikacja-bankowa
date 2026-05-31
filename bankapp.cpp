@@ -12,28 +12,20 @@ BankApp::BankApp(QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->btnOpenAdminPanel->hide();
+
     loginWidget = new LoginWidget(this);
     registerWidget = new RegisterWidget(this);
 
-    // 2. Dodajemy je dynamicznie do QStackedWidget i zapamiętujemy ich indeksy/wskaźniki
-    // Przekazujemy 'ui->stackedWidget' jako rodzica
-    ui->stackedWidget->addWidget(loginWidget);    // Zostanie dodany na pozycję (indeks) np. 1
-    ui->stackedWidget->addWidget(registerWidget); // Zostanie dodany na pozycję np. 2
+    // Zostawiamy w stackedWidget tylko klienta i rejestrację
+    ui->stackedWidget->addWidget(loginWidget);
+    ui->stackedWidget->addWidget(registerWidget);
 
-    // 3. Łączymy sygnały (Signals) dokładnie tak samo jak wcześniej
     connect(loginWidget, &LoginWidget::loginSuccessful, this, &BankApp::handleLoginSuccessful);
-    connect(loginWidget, &LoginWidget::goToRegisterRequested, this, [=](){
-        ui->stackedWidget->setCurrentWidget(registerWidget);
-    });
-    
-    connect(registerWidget, &RegisterWidget::cancelRequested, this, [=](){
-        ui->stackedWidget->setCurrentWidget(loginWidget);
-    });
-    connect(registerWidget, &RegisterWidget::registrationSuccessful, this, [=](){
-        ui->stackedWidget->setCurrentWidget(loginWidget);
-    });
+    connect(loginWidget, &LoginWidget::goToRegisterRequested, this, &BankApp::showRegisterPage);
+    connect(registerWidget, &RegisterWidget::cancelRequested, this, &BankApp::showLoginPage);
+    connect(registerWidget, &RegisterWidget::registrationSuccessful, this, &BankApp::showLoginPage);
 
-    // 4. Ustawiamy ekran startowy na widget logowania
     ui->stackedWidget->setCurrentWidget(loginWidget);
 }
 
@@ -41,12 +33,22 @@ BankApp::~BankApp() {
     delete ui;
 }
 
-void BankApp::handleLoginSuccessful(int userId, const QString &username) {
+void BankApp::handleLoginSuccessful(int userId, const QString &username, bool isAdmin) {
+    // Zapamiętujemy dane sesji dla każdego użytkownika
     loggedUserId = userId;
     loggedUsername = username;
+    isLoggedUserAdmin = isAdmin; // Zapisujemy informację, czy to admin
 
     ui->labelWelcome->setText("Zalogowano: <b>" + loggedUsername + "</b>");
     
+    // Zarządzanie widocznością przycisku administratora
+    if (isLoggedUserAdmin) {
+        ui->btnOpenAdminPanel->show(); // Pokazuje przycisk, jeśli zalogowany to admin
+    } else {
+        ui->btnOpenAdminPanel->hide(); // Ukrywa przycisk dla zwykłego klienta
+    }
+
+    // Ładowanie kont (zarówno admin, jak i zwykły użytkownik mogą mieć swoje konta w bazie)
     ui->comboAccounts->blockSignals(true);
     loadUserAccounts();
     ui->comboAccounts->blockSignals(false);
@@ -54,8 +56,8 @@ void BankApp::handleLoginSuccessful(int userId, const QString &username) {
     if (ui->comboAccounts->count() > 0) {
         on_comboAccounts_currentIndexChanged(0);
     }
-
-    ui->stackedWidget->setCurrentWidget(ui->dashboardPage); // Przełącz na pulpit
+    
+    ui->stackedWidget->setCurrentWidget(ui->dashboardPage);
 }
 
 void BankApp::showRegisterPage() {
@@ -163,4 +165,19 @@ void BankApp::on_btnCopyAccountNumber_clicked() {
     } else {
         QMessageBox::critical(this, "Błąd", "Nie udało się poprawnie sparsować numeru konta.");
     }
+}
+
+void BankApp::on_btnOpenAdminPanel_clicked() {
+    // Bezpieczeństwo: na wypadek gdyby jakimś cudem zwykły użytkownik wywołał tę funkcję
+    if (!isLoggedUserAdmin) return; 
+
+    AdminWidget adminDialog(this);
+    adminDialog.refreshData();
+    
+    // Otwieramy panel admina jako okno modalne
+    adminDialog.exec(); 
+    
+    // Po zamknięciu panelu admina, użytkownik po prostu wraca do swojego pulpitu bankowego.
+    // Opcjonalnie możemy odświeżyć dane, jeśli admin zmienił coś w bazie:
+    on_comboAccounts_currentIndexChanged(ui->comboAccounts->currentIndex());
 }

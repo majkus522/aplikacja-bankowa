@@ -16,15 +16,29 @@ void LoginWidget::on_btnLogin_clicked() {
     QString pass = ui->editPass->text();
 
     QSqlQuery query;
-    query.prepare("SELECT id FROM users WHERE username = :u AND password = :p");
+    // DODAJEMY is_blocked DO ZAPYTANIA
+    query.prepare("SELECT id, is_admin, is_blocked FROM users WHERE username = :u AND password = :p");
     query.bindValue(":u", user);
     query.bindValue(":p", pass);
 
     if (query.exec() && query.next()) {
+        bool isBlocked = query.value(2).toBool(); // <-- Pobranie flagi blokady
+
+        // SPRAWDZENIE BLOKADY
+        if (isBlocked) {
+            QMessageBox::critical(this, "Dostęp zabroniony", 
+                                  "Twoje konto zostało zablokowane przez administratora. "
+                                  "Skontaktuj się z infolinią banku.");
+            return; // Przerywamy funkcję, użytkownik nie zostanie zalogowany
+        }
+
         int userId = query.value(0).toInt();
+        bool isAdmin = query.value(1).toBool();
+        
         ui->editUser->clear();
         ui->editPass->clear();
-        emit loginSuccessful(userId, user); // Emitujemy sygnał do głównego okna
+        
+        emit loginSuccessful(userId, user, isAdmin);
     } else {
         QMessageBox::warning(this, "Błąd", "Błędne dane logowania");
     }

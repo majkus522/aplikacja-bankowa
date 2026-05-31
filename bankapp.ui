@@ -72,6 +72,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="btnOpenAdminPanel">
+          <property name="text">
+           <string>Panel Administratora</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="btnLogout">
           <property name="text">
            <string>Wyloguj</string>
