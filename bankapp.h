@@ -31,6 +31,7 @@ private slots:
     void on_comboAccounts_currentIndexChanged(int index);
     void on_btnOpenTransferDialog_clicked();
     void on_btnOpenHistoryDialog_clicked();
+    void on_btnCopyAccountNumber_clicked();
 
 private:
     Ui::BankApp *ui;

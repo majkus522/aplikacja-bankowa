@@ -3,6 +3,9 @@
 #include <QSqlQuery>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QClipboard>
+#include <QApplication>
+#include <QStatusBar>
 
 BankApp::BankApp(QWidget *parent) 
     : QMainWindow(parent), ui(new Ui::BankApp), loggedUserId(-1), currentAccountId(-1), currentBalance(0.0) 
@@ -129,4 +132,35 @@ void BankApp::on_btnOpenHistoryDialog_clicked() {
     // Tworzymy i uruchamiamy modalne okno historii
     HistoryDialog dialog(currentAccountId, this);
     dialog.exec(); 
+}
+
+void BankApp::on_btnCopyAccountNumber_clicked() {
+    // Sprawdzamy, czy użytkownik ma wybrane jakiekolwiek konto
+    int currentIndex = ui->comboAccounts->currentIndex();
+    if (currentIndex < 0) {
+        QMessageBox::warning(this, "Błąd", "Nie wybrano żadnego konta do skopiowania.");
+        return;
+    }
+
+    // Pobieramy pełny tekst z ComboBoxa, np. "Konto Osobiste ROR (12345678901234567890123456)"
+    QString fullText = ui->comboAccounts->currentText();
+
+    // Wyciągamy sam numer konta, który znajduje się wewnątrz nawiasów
+    int openBracket = fullText.lastIndexOf('(');
+    int closeBracket = fullText.lastIndexOf(')');
+
+    if (openBracket != -1 && closeBracket != -1 && closeBracket > openBracket) {
+        // Wycinamy zawartość między nawiasami (dokładnie 26 cyfr)
+        QString accountNumber = fullText.mid(openBracket + 1, closeBracket - openBracket - 1);
+
+        // Kopiowanie do schowka systemowego
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(accountNumber);
+
+        // Opcjonalne powiadomienie użytkownika w pasku stanu (StatusBar) okna głównego,
+        // aby nie męczyć go wyskakującymi okienkami QMessageBox
+        this->statusBar()->showMessage("Numer konta został skopiowany do schowka!", 3000); // Komunikat zniknie po 3 sekundach
+    } else {
+        QMessageBox::critical(this, "Błąd", "Nie udało się poprawnie sparsować numeru konta.");
+    }
 }

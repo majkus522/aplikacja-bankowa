@@ -37,7 +37,18 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="comboAccounts"/>
+         <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,0">
+          <item>
+           <widget class="QComboBox" name="comboAccounts"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnCopyAccountNumber">
+            <property name="text">
+             <string>Skopiuj</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QLabel" name="labelBalance">
