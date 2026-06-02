@@ -1,28 +1,31 @@
-#ifndef REGISTERWIDGET_H
-#define REGISTERWIDGET_H
+#pragma once
 
 #include <QWidget>
 
-namespace Ui { class RegisterWidget; }
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+    class RegisterWidget;
+}
+QT_END_NAMESPACE
 
-class RegisterWidget : public QWidget {
+class RegisterWidget : public QWidget
+{
     Q_OBJECT
 
-public:
-    explicit RegisterWidget(QWidget *parent = nullptr);
-    ~RegisterWidget();
+    public:
+        explicit RegisterWidget(QWidget *parent = nullptr);
+        ~RegisterWidget();
 
-signals:
-    void cancelRequested();
-    void registrationSuccessful();
+    signals:
+        void cancelRequested();
+        void registrationSuccessful();
 
-private slots:
-    void on_btnRegisterSubmit_clicked();
-    void on_btnCancelRegister_clicked();
+    private slots:
+        void on_btnRegisterSubmit_clicked();
+        void on_btnCancelRegister_clicked();
 
-private:
-    Ui::RegisterWidget *ui;
-    QString generateRandomAccountNumber();
+    private:
+        Ui::RegisterWidget *ui;
+        QString generateRandomAccountNumber();
 };
-
-#endif // REGISTERWIDGET_H

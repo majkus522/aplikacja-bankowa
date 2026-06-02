@@ -5,35 +5,42 @@
 #include <QMessageBox>
 #include <QRandomGenerator>
 
-RegisterWidget::RegisterWidget(QWidget *parent) : QWidget(parent), ui(new Ui::RegisterWidget) {
+RegisterWidget::RegisterWidget(QWidget *parent) : QWidget(parent), ui(new Ui::RegisterWidget)
+{
     ui->setupUi(this);
 }
 
-RegisterWidget::~RegisterWidget() {
+RegisterWidget::~RegisterWidget()
+{
     delete ui;
 }
 
-void RegisterWidget::on_btnRegisterSubmit_clicked() {
+void RegisterWidget::on_btnRegisterSubmit_clicked()
+{
     QString user = ui->editRegUser->text().trimmed();
     QString pass = ui->editRegPass->text();
     QString passConfirm = ui->editRegPassConfirm->text();
 
-    if (user.isEmpty() || pass.isEmpty()) {
+    if (user.isEmpty() || pass.isEmpty())
+    {
         QMessageBox::warning(this, "Błąd", "Pola nie mogą być puste!");
         return;
     }
-    if (pass != passConfirm) {
+    if (pass != passConfirm)
+    {
         QMessageBox::warning(this, "Błąd", "Hasła nie są identyczne!");
         return;
     }
 
     QSqlDatabase db = QSqlDatabase::database();
-    if (!db.transaction()) return;
+    if (!db.transaction())
+        return;
 
     QSqlQuery checkQuery;
     checkQuery.prepare("SELECT id FROM users WHERE username = :u");
     checkQuery.bindValue(":u", user);
-    if (checkQuery.exec() && checkQuery.next()) {
+    if (checkQuery.exec() && checkQuery.next())
+    {
         QMessageBox::warning(this, "Błąd", "Login jest zajęty!");
         db.rollback();
         return;
@@ -44,7 +51,8 @@ void RegisterWidget::on_btnRegisterSubmit_clicked() {
     insUser.bindValue(":u", user);
     insUser.bindValue(":p", pass);
 
-    if (!insUser.exec() || !insUser.next()) {
+    if (!insUser.exec() || !insUser.next())
+    {
         db.rollback();
         return;
     }
@@ -56,22 +64,24 @@ void RegisterWidget::on_btnRegisterSubmit_clicked() {
     insAcc.bindValue(":uid", newUserId);
     insAcc.bindValue(":anum", generateRandomAccountNumber());
 
-    if (insAcc.exec() && db.commit()) {
+    if (insAcc.exec() && db.commit())
+    {
         QMessageBox::information(this, "Sukces", "Konto utworzone!");
         emit registrationSuccessful();
-    } else {
-        db.rollback();
     }
+    else
+        db.rollback();
 }
 
-void RegisterWidget::on_btnCancelRegister_clicked() {
+void RegisterWidget::on_btnCancelRegister_clicked()
+{
     emit cancelRequested();
 }
 
-QString RegisterWidget::generateRandomAccountNumber() {
+QString RegisterWidget::generateRandomAccountNumber()
+{
     QString number = "";
-    for(int i = 0; i < 26; ++i) {
+    for(int i = 0; i < 26; ++i)
         number.append(QString::number(QRandomGenerator::global()->bounded(0, 10)));
-    }
     return number;
 }

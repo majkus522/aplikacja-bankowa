@@ -1,25 +1,28 @@
-#ifndef TRANSFERDIALOG_H
-#define TRANSFERDIALOG_H
+#pragma once
 
 #include <QDialog>
 
-namespace Ui { class TransferDialog; }
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+    class TransferDialog;
+}
+QT_END_NAMESPACE
 
-class TransferDialog : public QDialog {
+class TransferDialog : public QDialog
+{
     Q_OBJECT
 
-public:
-    explicit TransferDialog(int senderAccountId, double maxBalance, QWidget *parent = nullptr);
-    ~TransferDialog();
+    public:
+        explicit TransferDialog(int senderAccountId, double maxBalance, QWidget *parent = nullptr);
+        ~TransferDialog();
 
-private slots:
-    void on_btnConfirm_clicked();
-    void on_btnCancel_clicked();
+    private slots:
+        void on_btnConfirm_clicked();
+        void on_btnCancel_clicked();
 
-private:
-    Ui::TransferDialog *ui;
-    int m_senderAccountId;
-    double m_maxBalance;
+    private:
+        Ui::TransferDialog *ui;
+        int m_senderAccountId;
+        double m_maxBalance;
 };
-
-#endif // TRANSFERDIALOG_H

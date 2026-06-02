@@ -1,32 +1,35 @@
-#ifndef ADMINWIDGET_H
-#define ADMINWIDGET_H
+#pragma once
 
 #include <QDialog>
 #include <QSqlQueryModel>
 
-namespace Ui { class AdminWidget; }
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+    class AdminWidget;
+}
+QT_END_NAMESPACE
 
-class AdminWidget : public QDialog {
+class AdminWidget : public QDialog
+{
     Q_OBJECT
 
-public:
-    explicit AdminWidget(int adminId, QWidget *parent = nullptr);
-    ~AdminWidget();
-    void refreshData(); // Metoda do odświeżania listy użytkowników po wejściu do panelu
+    public:
+        explicit AdminWidget(int adminId, QWidget *parent = nullptr);
+        ~AdminWidget();
+        void refreshData();
 
-signals:
-    void logoutRequested();
+    signals:
+        void logoutRequested();
 
-private slots:
-    void on_btnLogOutAdmin_clicked();
-    void on_btnToggleAdmin_clicked();
-    void on_btnToggleBlock_clicked();
+    private slots:
+        void on_btnLogOutAdmin_clicked();
+        void on_btnToggleAdmin_clicked();
+        void on_btnToggleBlock_clicked();
 
-private:
-    Ui::AdminWidget *ui;
-    QSqlQueryModel *usersModel;
-    QSqlQueryModel *logModel;
-    int m_adminId;
+    private:
+        Ui::AdminWidget *ui;
+        QSqlQueryModel *usersModel;
+        QSqlQueryModel *logModel;
+        int m_adminId;
 };
-
-#endif // ADMINWIDGET_H

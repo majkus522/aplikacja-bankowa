@@ -1,29 +1,31 @@
-#ifndef HISTORYDIALOG_H
-#define HISTORYDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QSqlQueryModel>
-#include <QSortFilterProxyModel> // <-- DODAJ TEN INCLUDE
+#include <QSortFilterProxyModel>
 
-namespace Ui { class HistoryDialog; }
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+    class HistoryDialog;
+}
+QT_END_NAMESPACE
 
-class HistoryDialog : public QDialog {
+class HistoryDialog : public QDialog
+{
     Q_OBJECT
 
-public:
-    explicit HistoryDialog(int accountId, QWidget *parent = nullptr);
-    ~HistoryDialog();
+    public:
+        explicit HistoryDialog(int accountId, QWidget *parent = nullptr);
+        ~HistoryDialog();
 
-private slots:
-    void on_btnClose_clicked();
+    private slots:
+        void on_btnClose_clicked();
 
-private:
-    Ui::HistoryDialog *ui;
-    QSqlQueryModel *transactionsModel;
-    QSortFilterProxyModel *proxyModel; // <-- NOWY WSKAŹNIK
-    int m_accountId;
-
-    void loadTransactions();
+    private:
+        Ui::HistoryDialog *ui;
+        QSqlQueryModel *transactionsModel;
+        QSortFilterProxyModel *proxyModel;
+        int m_accountId;
+        void loadTransactions();
 };
-
-#endif // HISTORYDIALOG_H

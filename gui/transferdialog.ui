@@ -13,73 +13,67 @@
   <property name="windowTitle">
    <string>System Bankowy z Wieloma Kontami</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>170</width>
-     <height>187</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QStackedWidget" name="stackedWidget">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="loginPage">
-       <layout class="QVBoxLayout" name="vbox1">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Przelew</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignmentFlag::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="editTarget">
-          <property name="placeholderText">
-           <string>Numer konta odbiorcy</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="editTitle">
-          <property name="placeholderText">
-           <string>Tytuł przelewu</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="spinAmount"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnConfirm">
-          <property name="text">
-           <string>Wyślij</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnCancel">
-          <property name="text">
-           <string>Anuluj</string>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QStackedWidget" name="stackedWidget">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="loginPage">
+        <layout class="QVBoxLayout" name="vbox1">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Przelew</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="editTarget">
+           <property name="placeholderText">
+            <string>Numer konta odbiorcy</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="editTitle">
+           <property name="placeholderText">
+            <string>Tytuł przelewu</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="spinAmount"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnConfirm">
+           <property name="text">
+            <string>Wyślij</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnCancel">
+           <property name="text">
+            <string>Anuluj</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
