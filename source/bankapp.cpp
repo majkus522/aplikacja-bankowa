@@ -7,6 +7,8 @@
 #include <QApplication>
 #include <QStatusBar>
 #include "../headers/database.h"
+#include <QSqlError>
+#include <QDate>
 
 BankApp::BankApp(QWidget *parent) : QMainWindow(parent), ui(new Ui::BankApp), loggedUserId(-1), currentAccountId(-1), currentBalance(0.0) 
 {
@@ -53,6 +55,8 @@ void BankApp::handleLoginSuccessful(int userId, const QString &username, bool is
     if (ui->comboAccounts->count() > 0)
         on_comboAccounts_currentIndexChanged(0);
     ui->stackedWidget->setCurrentWidget(ui->dashboardPage);
+
+    updateUserStatistics(); // <-- TUTAJ
 }
 
 void BankApp::showRegisterPage()
@@ -96,6 +100,8 @@ void BankApp::on_comboAccounts_currentIndexChanged(int index)
         currentBalance = query.value(0).toDouble();
         updateBalanceDisplay();
     }
+
+    updateUserStatistics();
 }
 
 void BankApp::updateBalanceDisplay()
@@ -120,9 +126,11 @@ void BankApp::on_btnOpenTransferDialog_clicked()
     }
 
     TransferDialog dialog(currentAccountId, currentBalance, this);
-    
-    if (dialog.exec() == QDialog::Accepted)
+
+    if (dialog.exec() == QDialog::Accepted) {
         on_comboAccounts_currentIndexChanged(ui->comboAccounts->currentIndex());
+        updateUserStatistics(); // <-- TUTAJ
+    }
 }
 
 void BankApp::on_btnOpenHistoryDialog_clicked()
@@ -172,4 +180,94 @@ void BankApp::on_btnOpenAdminPanel_clicked()
     adminDialog.exec(); 
     
     on_comboAccounts_currentIndexChanged(ui->comboAccounts->currentIndex());
+}
+
+void BankApp::updateUserStatistics() {
+    if (loggedUserId == -1) return;
+
+    int currentMonth = QDate::currentDate().month();
+    int currentYear = QDate::currentDate().year();
+
+    // 1. Oszczędności: Suma balansów ze wszystkich kont danego użytkownika
+    QSqlQuery querySavings;
+    querySavings.prepare("SELECT COALESCE(SUM(balance), 0) FROM accounts WHERE user_id = :uid");
+    querySavings.bindValue(":uid", loggedUserId);
+    if (querySavings.exec() && querySavings.next()) {
+        double totalSavings = querySavings.value(0).toDouble();
+        ui->labelTotalSavings->setText(QString("Łączne oszczędności: <b>%1 PLN</b>").arg(QString::number(totalSavings, 'f', 2)));
+    }
+
+    // 2. Wydatki w bieżącym miesiącu: suma transakcji, gdzie subkonto użytkownika było NADAWCĄ (sender)
+    QSqlQuery queryExpenses;
+    queryExpenses.prepare(
+        "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t "
+        "JOIN accounts a ON t.sender_account_id = a.id "
+        "WHERE a.id = :uid "
+        "AND EXTRACT(MONTH FROM t.created_at) = :month "
+        "AND EXTRACT(YEAR FROM t.created_at) = :year"
+    );
+    queryExpenses.bindValue(":uid", currentAccountId);
+    queryExpenses.bindValue(":month", currentMonth);
+    queryExpenses.bindValue(":year", currentYear);
+    if (queryExpenses.exec() && queryExpenses.next()) {
+        double monthlyExpenses = queryExpenses.value(0).toDouble();
+        ui->labelMonthlyExpenses->setText(QString("Wydatki w tym miesiącu: <font color='red'><b>-%1 PLN</b></font>").arg(QString::number(monthlyExpenses, 'f', 2)));
+    }
+
+    // 3. Wpływy w bieżącym miesiącu: suma transakcji, gdzie subkonto użytkownika było ODBIORCĄ (receiver)
+    // Obejmuje to zarówno przelewy od innych, jak i wpłaty własne (wtedy sender_account_id jest NULL, ale receiver_account_id to nasze konto)
+    QSqlQuery queryIncomes;
+    queryIncomes.prepare(
+        "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t "
+        "JOIN accounts a ON t.receiver_account_id = a.id "
+        "WHERE a.id = :uid "
+        "AND EXTRACT(MONTH FROM t.created_at) = :month "
+        "AND EXTRACT(YEAR FROM t.created_at) = :year"
+    );
+    queryIncomes.bindValue(":uid", currentAccountId);
+    queryIncomes.bindValue(":month", currentMonth);
+    queryIncomes.bindValue(":year", currentYear);
+    if (queryIncomes.exec() && queryIncomes.next()) {
+        double monthlyIncomes = queryIncomes.value(0).toDouble();
+        ui->labelMonthlyIncomes->setText(QString("Wpływy w tym miesiącu: <font color='green'><b>+%1 PLN</b></font>").arg(QString::number(monthlyIncomes, 'f', 2)));
+    }
+
+    // 4. Największy jednorazowy wydatek (Maksymalna kwota ze wszystkich transakcji wychodzących użytkownika)
+    QSqlQuery queryMaxExpense;
+    queryMaxExpense.prepare(
+        "SELECT COALESCE(MAX(t.amount), 0), t.title FROM transactions t "
+        "JOIN accounts a ON t.sender_account_id = a.id "
+        "WHERE a.id = :uid "
+        "GROUP BY t.title, t.amount "
+        "ORDER BY t.amount DESC LIMIT 1"
+    );
+    queryMaxExpense.bindValue(":uid", currentAccountId);
+    if (queryMaxExpense.exec() && queryMaxExpense.next()) {
+        double maxExpense = queryMaxExpense.value(0).toDouble();
+        QString title = queryMaxExpense.value(1).toString();
+        if (maxExpense > 0) {
+            ui->labelBiggestExpense->setText(QString("Największy wydatek: <b>%1 PLN</b> (<i>%2</i>)").arg(QString::number(maxExpense, 'f', 2)).arg(title));
+        } else {
+            ui->labelBiggestExpense->setText("Największy wydatek: <b>0.00 PLN</b>");
+        }
+    }
+
+    QSqlQuery queryMaxIncome;
+    queryMaxIncome.prepare(
+        "SELECT COALESCE(MAX(t.amount), 0), t.title FROM transactions t "
+        "JOIN accounts a ON t.sender_account_id = a.id "
+        "WHERE a.id = :uid "
+        "GROUP BY t.title, t.amount "
+        "ORDER BY t.amount ASC LIMIT 1"
+    );
+    queryMaxIncome.bindValue(":uid", currentAccountId);
+    if (queryMaxIncome.exec() && queryMaxIncome.next()) {
+        double maxIncome = queryMaxIncome.value(0).toDouble();
+        QString title = queryMaxIncome.value(1).toString();
+        if (maxIncome > 0) {
+            ui->labelBiggestIncome->setText(QString("Największy przychód: <b>%1 PLN</b> (<i>%2</i>)").arg(QString::number(maxIncome, 'f', 2)).arg(title));
+        } else {
+            ui->labelBiggestIncome->setText("Największy przychód: <b>0.00 PLN</b>");
+        }
+    }
 }

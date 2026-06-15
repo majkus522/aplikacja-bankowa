@@ -48,4 +48,5 @@ class BankApp : public QMainWindow
 
         void loadUserAccounts();
         void updateBalanceDisplay();
+        void updateUserStatistics();
 };
