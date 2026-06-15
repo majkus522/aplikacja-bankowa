@@ -30,12 +30,12 @@ void AdminWidget::refreshData()
     query.prepare(
         "SELECT u.id AS \"ID\", u.username AS \"Użytkownik\", "
         "CASE WHEN u.is_admin THEN 'TAK' ELSE 'NIE' END AS \"Administrator\", "
-        "CASE WHEN u.is_blocked THEN 'ZABLOKOWANY' ELSE 'AKTYWNY' END AS \"Status\", " // <-- NOWA KOLUMNA
+        "CASE WHEN u.is_blocked THEN 'ZABLOKOWANY' ELSE 'AKTYWNY' END AS \"Status\", "
         "COALESCE(SUM(a.balance), 0) AS \"Łączne środki (PLN)\", "
         "COUNT(a.id) AS \"Liczba kont\" "
         "FROM users u "
         "LEFT JOIN accounts a ON u.id = a.user_id "
-        "GROUP BY u.id, u.username, u.is_admin, u.is_blocked " // <-- Dodano u.is_blocked
+        "GROUP BY u.id, u.username, u.is_admin, u.is_blocked "
         "ORDER BY u.id"
     );
     if (query.exec())

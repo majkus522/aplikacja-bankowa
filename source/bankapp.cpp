@@ -56,7 +56,7 @@ void BankApp::handleLoginSuccessful(int userId, const QString &username, bool is
         on_comboAccounts_currentIndexChanged(0);
     ui->stackedWidget->setCurrentWidget(ui->dashboardPage);
 
-    updateUserStatistics(); // <-- TUTAJ
+    updateUserStatistics();
 }
 
 void BankApp::showRegisterPage()
@@ -129,7 +129,7 @@ void BankApp::on_btnOpenTransferDialog_clicked()
 
     if (dialog.exec() == QDialog::Accepted) {
         on_comboAccounts_currentIndexChanged(ui->comboAccounts->currentIndex());
-        updateUserStatistics(); // <-- TUTAJ
+        updateUserStatistics();
     }
 }
 
@@ -188,7 +188,6 @@ void BankApp::updateUserStatistics() {
     int currentMonth = QDate::currentDate().month();
     int currentYear = QDate::currentDate().year();
 
-    // 1. Oszczędności: Suma balansów ze wszystkich kont danego użytkownika
     QSqlQuery querySavings;
     querySavings.prepare("SELECT COALESCE(SUM(balance), 0) FROM accounts WHERE user_id = :uid");
     querySavings.bindValue(":uid", loggedUserId);
@@ -197,7 +196,6 @@ void BankApp::updateUserStatistics() {
         ui->labelTotalSavings->setText(QString("Łączne oszczędności: <b>%1 PLN</b>").arg(QString::number(totalSavings, 'f', 2)));
     }
 
-    // 2. Wydatki w bieżącym miesiącu: suma transakcji, gdzie subkonto użytkownika było NADAWCĄ (sender)
     QSqlQuery queryExpenses;
     queryExpenses.prepare(
         "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t "
@@ -214,8 +212,6 @@ void BankApp::updateUserStatistics() {
         ui->labelMonthlyExpenses->setText(QString("Wydatki w tym miesiącu: <font color='red'><b>-%1 PLN</b></font>").arg(QString::number(monthlyExpenses, 'f', 2)));
     }
 
-    // 3. Wpływy w bieżącym miesiącu: suma transakcji, gdzie subkonto użytkownika było ODBIORCĄ (receiver)
-    // Obejmuje to zarówno przelewy od innych, jak i wpłaty własne (wtedy sender_account_id jest NULL, ale receiver_account_id to nasze konto)
     QSqlQuery queryIncomes;
     queryIncomes.prepare(
         "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t "
@@ -232,7 +228,6 @@ void BankApp::updateUserStatistics() {
         ui->labelMonthlyIncomes->setText(QString("Wpływy w tym miesiącu: <font color='green'><b>+%1 PLN</b></font>").arg(QString::number(monthlyIncomes, 'f', 2)));
     }
 
-    // 4. Największy jednorazowy wydatek (Maksymalna kwota ze wszystkich transakcji wychodzących użytkownika)
     QSqlQuery queryMaxExpense;
     queryMaxExpense.prepare(
         "SELECT COALESCE(MAX(t.amount), 0), t.title FROM transactions t "
